@@ -1,0 +1,4 @@
+cooldowns:
+	update_cooldown: 500
+distances:
+	sneakdistance: 30

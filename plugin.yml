@@ -1,3 +1,15 @@
 name: PlayerHider
 main: io.github.redinzane.playerhider.PlayerHider
 version: 0.1
+description: A simple plugin that tries to hide underground bases by letting players appear sneaked to players that are further away.
+
+depend: [ProtocolLib]
+
+permissions:
+  playerhider.*:
+    description: Gives access to everything.
+    children:
+      playerhider.hide.autosneak: true
+  playerhider.hide.autosneak:
+    description: Whether or not to hide all automatic sneaking for this player.
+    default: op
