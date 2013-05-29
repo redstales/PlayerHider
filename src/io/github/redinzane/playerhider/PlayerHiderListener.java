@@ -51,7 +51,7 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
 	 * @param player - player to refresh.
 	 * @throws InvocationTargetException If we are unable to send a packet.
 	 */
-	public void updatePlayer(ProtocolManager manager, Player player, Player observer) throws InvocationTargetException
+	public void updatePlayer(ProtocolManager manager, Player player) throws InvocationTargetException
 	{
 		Byte flag = flagByte.get(player);
 		
@@ -69,7 +69,9 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
 		packet.setEntityMetadata(watcher.getWatchableObjects());
 		
 		// Broadcast the packet
-		manager.sendServerPacket(observer, packet.getHandle());
+		for (Player observer : manager.getEntityTrackers(player)) {
+			manager.sendServerPacket(observer, packet.getHandle());
+		}
 	}
 	
 	@Override
@@ -101,7 +103,8 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
 				WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
 				Byte flag = watcher.getByte(0);
 				
-				if (flag != null) {
+				if (flag != null) 
+				{
 					// Store the last seen flag byte
 					flagByte.put(target, flag);
 					
@@ -111,6 +114,24 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
 					watcher.setObject(0, (byte) (flag | ENTITY_CROUCHED));
 					
 					event.setPacket(packet.getHandle());
+				}
+			}
+			else
+			{
+				WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+				Byte flag = watcher.getByte(0);
+				
+				if (flag != null) 
+				{
+					// Store the last seen flag byte
+					flagByte.put(target, flag);
+					
+					// Clone and update it
+					packet = new Packet28EntityMetadata(packet.getHandle().deepClone());
+					watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+					watcher.setObject(0, (byte) (flag));
+					
+					event.setPacket(packet.getHandle());			
 				}
 			}
 		}
@@ -124,42 +145,19 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
 		{
 			lastCall = date.getTime();
 			Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
-			for(Player player1: tempPlayers)
-			{
-				for(Player player2: tempPlayers)
+			for(Player player: tempPlayers)
+			{			
+				try 
 				{
-					if(player1.equals(player2))
-					{
-							
-					}
-					else
-					{
-						double distance = 0;
-						try
-						{
-							distance = player1.getLocation().distance(player2.getLocation());
-						}
-						catch(IllegalArgumentException e)
-						{
-							return;
-						}
-						if (distance >= sneakdistance) 
-						{
-							try 
-							{
-								updatePlayer(ProtocolLibrary.getProtocolManager(), player1, player2);
-							} catch (InvocationTargetException e) {
-								e.printStackTrace();
-							}
-						}
-						
-					}
+					updatePlayer(ProtocolLibrary.getProtocolManager(), player);
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
 				}
-			}
+			}							
 		}
 		else
 		{
 			
 		}
-		}
+	}
 }

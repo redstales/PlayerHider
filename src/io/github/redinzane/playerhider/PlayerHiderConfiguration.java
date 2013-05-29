@@ -10,11 +10,11 @@ public class PlayerHiderConfiguration
 	private static final String SECTION_COOLDOWNS = "cooldowns";
 	private static final String SECTION_DISTANCES = "distances";
 	
-	private static final String COOLDOWN_KEY = "update_cooldown";
+	private static final String COOLDOWN_KEY = "updatecooldown";
 	private static final String DISTANCE_KEY = "sneakdistance";
 	
-	private static final int DEFAULT_COOLDOWN = 500;
-	private static final int DEFAULT_DISTANCE = 30;
+	private static final int DEFAULT_COOLDOWN = 1000;
+	private static final int DEFAULT_DISTANCE = 32;
 	
 	public PlayerHiderConfiguration(Configuration config) {
 		this.config = config;

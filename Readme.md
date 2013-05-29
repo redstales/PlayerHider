@@ -31,7 +31,7 @@ Permissions
     <th>Default</th>
   </tr>
   <tr>
-    <td>sneaky.hide.autosneak</td>
+    <td>playerhider.hide.autosneak</td>
     <td>Whether or not to hide all automatic sneaking for this player.</td>
     <td>op</td>
   </tr>
