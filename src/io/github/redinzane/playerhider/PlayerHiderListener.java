@@ -24,8 +24,7 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 //Imports from own packages
 import io.github.redinzane.playerhider.packets.Packet28EntityMetadata;
 
-public class PlayerHiderListener extends PacketAdapter implements Listener 
-{
+public class PlayerHiderListener extends PacketAdapter implements Listener {
     
 	private static final int ENTITY_CROUCHED = 0x02;
 	
@@ -41,8 +40,7 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 	// Last seen flag byte
 	private Map<Player, Byte> flagByte = new WeakHashMap<Player, Byte>();
 	
-	public PlayerHiderListener(Plugin plugin) 
-	{
+	public PlayerHiderListener(Plugin plugin) {
 		super(plugin, ConnectionSide.SERVER_SIDE, Packet28EntityMetadata.ID);
 	}
 	
@@ -71,29 +69,22 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 		packet.setEntityMetadata(watcher.getWatchableObjects());
 		
 		// Broadcast the packet
-		for (Player observer : manager.getEntityTrackers(player)) 
-		{
+		for (Player observer : manager.getEntityTrackers(player)) {
 			manager.sendServerPacket(observer, packet.getHandle());
 		}
 	}
 	
 	@Override
-	public void onPacketSending(PacketEvent event) 
-	{
-		
-		//If a user has this permission, he will see players normally
-		if (event.getPlayer().hasPermission(PERMISSION_HIDE_AUTO)) 
-		{
+	public void onPacketSending(PacketEvent event) {
+		// This modification shall only apply to certain users
+		if (event.getPlayer().hasPermission(PERMISSION_HIDE_AUTO)) {
 			return;
 		}
 		
-		//Initializing packets
 		Packet28EntityMetadata packet = new Packet28EntityMetadata(event.getPacket());
 		Entity entity = packet.getEntity(event);
 		
-		
-		if (entity instanceof Player) 
-		{
+		if (entity instanceof Player) {
 			Player target = (Player) entity;
 			Player observer = event.getPlayer();
 			double distance = 0;
@@ -149,19 +140,17 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 	@EventHandler
     public void onPlayerMove(PlayerMoveEvent event) 
 	{
-		long time = System.currentTimeMillis();
-		if((time-lastCall)>updateCooldown)
+		Date date = new Date();
+		if((date.getTime()-lastCall)>updateCooldown)
 		{
-			lastCall = System.currentTimeMillis();
+			lastCall = date.getTime();
 			Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
 			for(Player player: tempPlayers)
 			{			
 				try 
 				{
 					updatePlayer(ProtocolLibrary.getProtocolManager(), player);
-				}
-				catch (InvocationTargetException e) 
-				{
+				} catch (InvocationTargetException e) {
 					e.printStackTrace();
 				}
 			}							
