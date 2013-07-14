@@ -38,8 +38,9 @@ public final class PlayerHider extends JavaPlugin {
 	@Override
     public void onEnable()
 	{
+		//Creates a Config
 		config = new PlayerHiderConfiguration(getConfig());
-
+		
 		if (!hasConfig()) {
 			getConfig().options().copyDefaults(true);
 			saveConfig();
@@ -65,6 +66,8 @@ public final class PlayerHider extends JavaPlugin {
     {
     	
     }
+    
+    //Checks if a config file exists
     private boolean hasConfig() {
 		File file = new File(getDataFolder(), "config.yml");
 		return file.exists();
