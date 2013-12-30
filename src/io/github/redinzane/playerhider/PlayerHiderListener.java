@@ -2,7 +2,6 @@ package io.github.redinzane.playerhider;
 
 //Java Imports
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.bukkit.Bukkit;
@@ -28,6 +27,11 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 {
     
 	private static final int ENTITY_CROUCHED = 0x02;
+	//Distance from which sneaking is visible
+	double sneakdistance;
+	boolean feature_LoS = false;
+		
+		
 	
 	// Whether or not a player can see autosneaking
 	private static final String PERMISSION_HIDE_AUTO = "playerhider.hide.autosneak";
@@ -35,8 +39,6 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 	int updateCooldown = 500;
 	private long lastCall = 0;
 	
-	//Distance from which sneaking is visible
-	double sneakdistance = 30;
 	
 	// Last seen flag byte
 	private Map<Player, Byte> flagByte = new WeakHashMap<Player, Byte>();
@@ -127,20 +129,62 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 			}
 			else
 			{
-				WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-				Byte flag = watcher.getByte(0);
-				
-				if (flag != null) 
+				if(feature_LoS == true)
 				{
-					// Store the last seen flag byte
-					flagByte.put(target, flag);
-					
-					// Clone and update it
-					packet = new Packet28EntityMetadata(packet.getHandle().deepClone());
-					watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-					watcher.setObject(0, (byte) (flag));
-					
-					event.setPacket(packet.getHandle());			
+					if(observer.hasLineOfSight(target) == false)
+					{
+						WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+						Byte flag = watcher.getByte(0);
+						
+						if (flag != null) 
+						{
+							// Store the last seen flag byte
+							flagByte.put(target, flag);
+							
+							// Clone and update it
+							packet = new Packet28EntityMetadata(packet.getHandle().deepClone());
+							watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+							watcher.setObject(0, (byte) (flag | ENTITY_CROUCHED));
+							
+							event.setPacket(packet.getHandle());
+						}
+					}
+					else
+					{
+						WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+						Byte flag = watcher.getByte(0);
+
+						if (flag != null) 
+						{
+							// Store the last seen flag byte
+							flagByte.put(target, flag);
+
+							// Clone and update it
+							packet = new Packet28EntityMetadata(packet.getHandle().deepClone());
+							watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+							watcher.setObject(0, (byte) (flag));
+
+							event.setPacket(packet.getHandle());			
+						}
+					}
+				}
+				else
+				{
+					WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+					Byte flag = watcher.getByte(0);
+
+					if (flag != null) 
+					{
+						// Store the last seen flag byte
+						flagByte.put(target, flag);
+
+						// Clone and update it
+						packet = new Packet28EntityMetadata(packet.getHandle().deepClone());
+						watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+						watcher.setObject(0, (byte) (flag));
+
+						event.setPacket(packet.getHandle());
+					}
 				}
 			}
 		}

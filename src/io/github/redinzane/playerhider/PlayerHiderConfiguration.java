@@ -9,9 +9,11 @@ public class PlayerHiderConfiguration
 	
 	private static final String SECTION_COOLDOWNS = "cooldowns";
 	private static final String SECTION_DISTANCES = "distances";
+	private static final String SECTION_FEATURES = "features";
 	
 	private static final String COOLDOWN_KEY = "updatecooldown";
 	private static final String DISTANCE_KEY = "sneakdistance";
+	private static final String LOS_KEY = "los";
 	
 	private static final int DEFAULT_COOLDOWN = 1000;
 	private static final int DEFAULT_DISTANCE = 32;
@@ -38,7 +40,7 @@ public class PlayerHiderConfiguration
 	 * @param value - new cooldown.
 	 */
 	public void setCooldown(int value) {
-		getSectionOrDefault(SECTION_COOLDOWNS).get(COOLDOWN_KEY, value);
+		getSectionOrDefault(SECTION_COOLDOWNS).set(COOLDOWN_KEY, value);
 	}
 	/**
 	 * Retrieve the distance in blocks.
@@ -57,7 +59,7 @@ public class PlayerHiderConfiguration
 	 * @param value - new distance.
 	 */
 	public void setDistance(int value) {
-		getSectionOrDefault(SECTION_DISTANCES).get(DISTANCE_KEY, value);
+		getSectionOrDefault(SECTION_DISTANCES).set(DISTANCE_KEY, value);
 	}
 	
 	private ConfigurationSection getSectionOrDefault(String name) {
@@ -67,6 +69,21 @@ public class PlayerHiderConfiguration
 			return section;
 		else
 			return config.createSection(name);
+	}
+	/**
+	 * Retrieve the LoS on/off boolean
+	 * @return value - on/off boolean
+	 */
+	public boolean getLoS() {
+		boolean value = getSectionOrDefault(SECTION_FEATURES).getBoolean(LOS_KEY);
+		return value;
+	}
+	/**
+	 * Set the LoS on/off boolean.
+	 * @param value - new boolean
+	 */
+	public void setLoS(boolean value) {
+		getSectionOrDefault(SECTION_FEATURES).set(LOS_KEY, value);
 	}
 	
 	

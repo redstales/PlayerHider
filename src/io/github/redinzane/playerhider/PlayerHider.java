@@ -59,6 +59,7 @@ public final class PlayerHider extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(listener, this);
 		listener.sneakdistance = config.getDistance();
 		listener.updateCooldown = config.getCooldown();
+		listener.feature_LoS = config.getLoS();
     }
  
     @Override

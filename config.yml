@@ -2,3 +2,5 @@ cooldowns:
   updatecooldown: 1000
 distances:
   sneakdistance: 32
+features:
+  los: false
