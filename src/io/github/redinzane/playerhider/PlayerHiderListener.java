@@ -57,6 +57,10 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 	 */
 	public void updatePlayer(ProtocolManager manager, Player player) throws InvocationTargetException
 	{
+		if(player.isDead())
+		{
+			return;
+		}
 		Byte flag = flagByte.get(player);
 		
 		// It doesn't matter much
