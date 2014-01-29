@@ -20,6 +20,7 @@
 package io.github.redinzane.playerhider;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.bukkit.Bukkit;
@@ -39,9 +40,12 @@ public final class PlayerHider extends JavaPlugin {
 	private ProtocolManager manager;
 	//ID of the runnable task
 	private int taskID = -1;
+	//Metrics
+	private Metrics metrics;
 	
 	int updateCooldown = 500;
 	private long lastCall = 0;
+	
 	
 	@Override
     public void onEnable()
@@ -80,12 +84,23 @@ public final class PlayerHider extends JavaPlugin {
 		{
 			e.printStackTrace();
 		}
+		
+		try 
+		{
+			metrics = new Metrics(this);
+			metrics.start();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
     }
  
     @Override
     public void onDisable()
     {
-    	
+    	getServer().getScheduler().cancelTask(taskID);
     }
     
     //Checks if a config file exists
