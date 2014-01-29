@@ -20,7 +20,10 @@
 package io.github.redinzane.playerhider;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -34,6 +37,11 @@ public final class PlayerHider extends JavaPlugin {
 	private PlayerHiderListener listener;
 	// Reference to PL
 	private ProtocolManager manager;
+	//ID of the runnable task
+	private int taskID = -1;
+	
+	int updateCooldown = 500;
+	private long lastCall = 0;
 	
 	@Override
     public void onEnable()
@@ -58,8 +66,20 @@ public final class PlayerHider extends JavaPlugin {
 		manager.addPacketListener(listener);
 		getServer().getPluginManager().registerEvents(listener, this);
 		listener.sneakdistance = config.getDistance();
-		listener.updateCooldown = config.getCooldown();
+		this.updateCooldown = config.getCooldown();
 		listener.feature_LoS = config.getLoS();
+		try
+		{
+			taskID = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){public void run(){updateAllPlayers();} }, 0, 1);
+			if(taskID == -1)
+			{
+				throw new Exception("PlayerHider Update Task could not be scheduled");
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
     }
  
     @Override
@@ -72,5 +92,30 @@ public final class PlayerHider extends JavaPlugin {
     private boolean hasConfig() {
 		File file = new File(getDataFolder(), "config.yml");
 		return file.exists();
+	}
+    
+    public void updateAllPlayers()
+	{
+		long time = System.currentTimeMillis();
+		if((time-lastCall)>updateCooldown)
+		{
+			lastCall = System.currentTimeMillis();
+			Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
+			for(Player player: tempPlayers)
+			{			
+				try 
+				{
+					listener.updatePlayer(ProtocolLibrary.getProtocolManager(), player);
+				}
+				catch (InvocationTargetException e) 
+				{
+					e.printStackTrace();
+				}
+			}							
+		}
+		else
+		{
+			
+		}
 	}
 }

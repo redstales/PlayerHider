@@ -4,15 +4,15 @@ package io.github.redinzane.playerhider;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.bukkit.Bukkit;
+//import org.bukkit.Bukkit;
 //Bukkit imports
-import org.bukkit.event.EventHandler;
+//import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
+//import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import com.comphenix.protocol.ProtocolLibrary;
+//import com.comphenix.protocol.ProtocolLibrary;
 //ProtocolLib Imports
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ConnectionSide;
@@ -35,10 +35,6 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 	
 	// Whether or not a player can see autosneaking
 	private static final String PERMISSION_HIDE_AUTO = "playerhider.hide.autosneak";
-	
-	int updateCooldown = 500;
-	private long lastCall = 0;
-	
 	
 	// Last seen flag byte
 	private Map<Player, Byte> flagByte = new WeakHashMap<Player, Byte>();
@@ -191,32 +187,6 @@ public class PlayerHiderListener extends PacketAdapter implements Listener
 					}
 				}
 			}
-		}
-	}
-	
-	@EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) 
-	{
-		long time = System.currentTimeMillis();
-		if((time-lastCall)>updateCooldown)
-		{
-			lastCall = System.currentTimeMillis();
-			Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
-			for(Player player: tempPlayers)
-			{			
-				try 
-				{
-					updatePlayer(ProtocolLibrary.getProtocolManager(), player);
-				}
-				catch (InvocationTargetException e) 
-				{
-					e.printStackTrace();
-				}
-			}							
-		}
-		else
-		{
-			
 		}
 	}
 }
