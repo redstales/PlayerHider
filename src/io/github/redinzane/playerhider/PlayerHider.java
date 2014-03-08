@@ -53,7 +53,8 @@ public final class PlayerHider extends JavaPlugin {
 		//Creates a Config
 		config = new PlayerHiderConfiguration(getConfig());
 		
-		if (!hasConfig()) {
+		if (!hasConfig()) 
+		{
 			getConfig().options().copyDefaults(true);
 			saveConfig();
 			

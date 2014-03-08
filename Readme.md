@@ -39,6 +39,13 @@ Permissions
   </tr>
 </table>
 
+Config
+------
+Very easy to configure, disable and reeanble the plugin for changes to take effect:
+* updatecooldown: The plugins tickrate in milliseconds, from 0 for as often as possible (only use this for v0.5 or newer) up to technically infinity (though I recommend 1000 for once a second asm a default). This affects both LoS and distance based hiding.
+* sneakdistance: Players further apart than this distance (in blocks) are shown as sneaking to each other. If LoS is active players who are within that distance from each other are checked for visibility and are shown as sneaking if they are not visible to each other. You can set this pretty high, but this will increase server load if many players are within the distance from each other. This should be a negligible on any servers maintaining the deafult tickrate but might be a concern on weaker servers.
+* LoS: This turns Line of Sight hiding on or off, default off, set true to turn it on. 
+
 Building
 --------
-If you manage to compile this, you probably could've written it better than I did.
+Just drop everything (including the yml files) into a jar-file.
