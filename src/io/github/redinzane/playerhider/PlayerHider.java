@@ -19,7 +19,6 @@
 
 package io.github.redinzane.playerhider;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -51,17 +50,8 @@ public final class PlayerHider extends JavaPlugin {
     public void onEnable()
 	{
 		//Creates a Config
+		this.saveDefaultConfig();
 		config = new PlayerHiderConfiguration(getConfig());
-		
-		if (!hasConfig()) 
-		{
-			getConfig().options().copyDefaults(true);
-			saveConfig();
-			
-			// Load it again
-			config = new PlayerHiderConfiguration(getConfig());
-			getLogger().info("Creating default configuration.");
-		}
 		
 		// Packet handling
 		manager = ProtocolLibrary.getProtocolManager();
@@ -103,12 +93,6 @@ public final class PlayerHider extends JavaPlugin {
     {
     	getServer().getScheduler().cancelTask(taskID);
     }
-    
-    //Checks if a config file exists
-    private boolean hasConfig() {
-		File file = new File(getDataFolder(), "config.yml");
-		return file.exists();
-	}
     
     public void updateAllPlayers()
 	{
