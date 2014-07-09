@@ -28,94 +28,80 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
- 
-public final class PlayerHider extends JavaPlugin {
-	
-	// Configuration
-	private PlayerHiderConfiguration config;
-	// Minecraft packet handling
-	private PlayerHiderListener listener;
-	// Reference to PL
-	private ProtocolManager manager;
-	//ID of the runnable task
-	private int taskID = -1;
-	//Metrics
-	private Metrics metrics;
-	
-	int updateCooldown = 500;
-	private long lastCall = 0;
-	
-	
-	@Override
-    public void onEnable()
-	{
-		//Creates a Config
-		this.saveDefaultConfig();
-		config = new PlayerHiderConfiguration(getConfig());
-		
-		// Packet handling
-		manager = ProtocolLibrary.getProtocolManager();
-		listener = new PlayerHiderListener(this);
 
-		// Register listeners
-		manager.addPacketListener(listener);
-		getServer().getPluginManager().registerEvents(listener, this);
-		listener.sneakdistance = config.getDistance();
-		this.updateCooldown = config.getCooldown();
-		listener.feature_LoS = config.getLoS();
-		try
-		{
-			taskID = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){public void run(){updateAllPlayers();} }, 0, 1);
-			if(taskID == -1)
-			{
-				throw new Exception("PlayerHider Update Task could not be scheduled");
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		try 
-		{
-			metrics = new Metrics(this);
-			metrics.start();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		
-    }
- 
+public final class PlayerHider extends JavaPlugin {
+
+    // Configuration
+    private PlayerHiderConfiguration config;
+    // Minecraft packet handling
+    private PlayerHiderListener listener;
+    // Reference to PL
+    private ProtocolManager manager;
+    // ID of the runnable task
+    private int taskID = -1;
+    // Metrics
+    private Metrics metrics;
+
+    int updateCooldown = 500;
+    private long lastCall = 0;
+
     @Override
-    public void onDisable()
-    {
-    	getServer().getScheduler().cancelTask(taskID);
+    public void onEnable() {
+        // Creates a Config
+        this.saveDefaultConfig();
+        config = new PlayerHiderConfiguration(getConfig());
+
+        // Packet handling
+        manager = ProtocolLibrary.getProtocolManager();
+        listener = new PlayerHiderListener(this);
+
+        // Register listeners
+        manager.addPacketListener(listener);
+        getServer().getPluginManager().registerEvents(listener, this);
+        listener.sneakdistance = config.getDistance();
+        this.updateCooldown = config.getCooldown();
+        listener.feature_LoS = config.getLoS();
+        try {
+            taskID = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+                public void run() {
+                    updateAllPlayers();
+                }
+            }, 0, 1);
+            if (taskID == -1) {
+                throw new Exception("PlayerHider Update Task could not be scheduled");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            metrics = new Metrics(this);
+            metrics.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
-    
-    public void updateAllPlayers()
-	{
-		long time = System.currentTimeMillis();
-		if((time-lastCall)>updateCooldown)
-		{
-			lastCall = System.currentTimeMillis();
-			Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
-			for(Player player: tempPlayers)
-			{			
-				try 
-				{
-					listener.updatePlayer(ProtocolLibrary.getProtocolManager(), player);
-				}
-				catch (InvocationTargetException e) 
-				{
-					e.printStackTrace();
-				}
-			}							
-		}
-		else
-		{
-			
-		}
-	}
+
+    @Override
+    public void onDisable() {
+        getServer().getScheduler().cancelTask(taskID);
+    }
+
+    public void updateAllPlayers() {
+        long time = System.currentTimeMillis();
+        if ((time - lastCall) > updateCooldown) {
+            lastCall = System.currentTimeMillis();
+            Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
+            for (Player player : tempPlayers) {
+                try {
+                    listener.updatePlayer(ProtocolLibrary.getProtocolManager(), player);
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+
+        }
+    }
 }

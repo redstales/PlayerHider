@@ -22,21 +22,22 @@ import java.util.List;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 
-public class Packet28EntityMetadata extends AbstractPacket {
-    public static final int ID = 40;
+public class WrapperPlayServerEntityMetadata extends AbstractPacket {
+    public static final PacketType TYPE = PacketType.Play.Server.ENTITY_METADATA;
     
-    public Packet28EntityMetadata() {
-        super(new PacketContainer(ID), ID);
+    public WrapperPlayServerEntityMetadata() {
+        super(new PacketContainer(TYPE), TYPE);
         handle.getModifier().writeDefaults();
     }
     
-    public Packet28EntityMetadata(PacketContainer packet) {
-        super(packet, ID);
+    public WrapperPlayServerEntityMetadata(PacketContainer packet) {
+        super(packet, TYPE);
     }
     
     /**
@@ -91,5 +92,3 @@ public class Packet28EntityMetadata extends AbstractPacket {
         handle.getWatchableCollectionModifier().write(0, value);
     }
 }
-
-
