@@ -1,6 +1,7 @@
 cooldowns:
-  updatecooldown: 1000
+  updatecooldown: 0
 distances:
   sneakdistance: 32
 features:
   los: false
+  combattag: true

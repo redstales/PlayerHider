@@ -13,9 +13,7 @@ public class PlayerHiderConfiguration {
     private static final String COOLDOWN_KEY = "updatecooldown";
     private static final String DISTANCE_KEY = "sneakdistance";
     private static final String LOS_KEY = "los";
-
-    private static final int DEFAULT_COOLDOWN = 1000;
-    private static final int DEFAULT_DISTANCE = 32;
+    private static final String COMBATTAG_KEY = "combattag";
 
     public PlayerHiderConfiguration(Configuration config) {
         this.config = config;
@@ -27,12 +25,7 @@ public class PlayerHiderConfiguration {
      * @return Cooldown in milliseconds.
      */
     public int getCooldown() {
-        Object value = getSectionOrDefault(SECTION_COOLDOWNS).get(COOLDOWN_KEY);
-
-        if (value == null)
-            return DEFAULT_COOLDOWN;
-        else
-            return ((Number) value).intValue();
+        return getSectionOrDefault(SECTION_COOLDOWNS).getInt(COOLDOWN_KEY);
     }
 
     /**
@@ -51,12 +44,7 @@ public class PlayerHiderConfiguration {
      * @return Distance in milliseconds.
      */
     public int getDistance() {
-        Object value = getSectionOrDefault(SECTION_DISTANCES).get(DISTANCE_KEY);
-
-        if (value == null)
-            return DEFAULT_DISTANCE;
-        else
-            return ((Number) value).intValue();
+        return getSectionOrDefault(SECTION_DISTANCES).getInt(DISTANCE_KEY);
     }
 
     /**
@@ -96,6 +84,26 @@ public class PlayerHiderConfiguration {
      */
     public void setLoS(boolean value) {
         getSectionOrDefault(SECTION_FEATURES).set(LOS_KEY, value);
+    }
+    
+    /**
+     * Retrieve the LoS on/off boolean
+     * 
+     * @return value - on/off boolean
+     */
+    public boolean getCombatTag() {
+        boolean value = getSectionOrDefault(SECTION_FEATURES).getBoolean(COMBATTAG_KEY);
+        return value;
+    }
+
+    /**
+     * Set the LoS on/off boolean.
+     * 
+     * @param value
+     *            - new boolean
+     */
+    public void setCombatTag(boolean value) {
+        getSectionOrDefault(SECTION_FEATURES).set(COMBATTAG_KEY, value);
     }
 
 }

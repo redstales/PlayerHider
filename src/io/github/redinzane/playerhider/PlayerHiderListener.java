@@ -8,17 +8,20 @@ import java.util.WeakHashMap;
 import org.bukkit.event.Listener;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 
+
+
 import io.github.redinzane.playerhider.packets.WrapperPlayServerEntityMetadata;
 
 public class PlayerHiderListener extends PacketAdapter implements Listener {
 
+    PlayerHider plugin;
+    boolean combatTag;
     private static final int ENTITY_CROUCHED = 0x02;
     // Distance from which sneaking is visible
     double sneakdistance;
@@ -30,8 +33,11 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
     // Last seen flag byte
     private Map<Player, Byte> flagByte = new WeakHashMap<Player, Byte>();
     
-    public PlayerHiderListener(Plugin plugin) {
+    public PlayerHiderListener(PlayerHider plugin, boolean combatTag, boolean los) {
         super(PacketAdapter.params(plugin, WrapperPlayServerEntityMetadata.TYPE));
+        this.plugin = plugin;
+        this.combatTag = combatTag;
+        this.feature_LoS = los;
     }
 
     /**
@@ -45,6 +51,7 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
         if (player.isDead()) {
             return;
         }
+            
         Byte flag = flagByte.get(player);
 
         // It doesn't matter much
@@ -87,72 +94,61 @@ public class PlayerHiderListener extends PacketAdapter implements Listener {
             } catch (IllegalArgumentException e) {
                 return;
             }
-
-            if (distance >= sneakdistance) {
-                WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                Byte flag = watcher.getByte(0);
-
-                if (flag != null) {
-                    // Store the last seen flag byte
-                    flagByte.put(target, flag);
-
-                    // Clone and update it
-                    packet = new WrapperPlayServerEntityMetadata(packet.getHandle().deepClone());
-                    watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                    watcher.setObject(0, (byte) (flag | ENTITY_CROUCHED));
-
-                    event.setPacket(packet.getHandle());
+            
+            if(combatTag && plugin.getCombatAPI() != null) {
+                if(plugin.getCombatAPI().isInCombat(target)) {
+                    event.setPacket(packetManipulator(packet, target).getHandle());
                 }
-            } else {
-                if (feature_LoS == true) {
+            } else if (distance >= sneakdistance) {
+                event.setPacket(packetManipulatorCrouched(packet, target).getHandle());
+            } else if (feature_LoS == true) {
                     if (observer.hasLineOfSight(target) == false) {
-                        WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                        Byte flag = watcher.getByte(0);
-
-                        if (flag != null) {
-                            // Store the last seen flag byte
-                            flagByte.put(target, flag);
-
-                            // Clone and update it
-                            packet = new WrapperPlayServerEntityMetadata(packet.getHandle().deepClone());
-                            watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                            watcher.setObject(0, (byte) (flag | ENTITY_CROUCHED));
-
-                            event.setPacket(packet.getHandle());
-                        }
+                        event.setPacket(packetManipulatorCrouched(packet, target).getHandle());
                     } else {
-                        WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                        Byte flag = watcher.getByte(0);
-
-                        if (flag != null) {
-                            // Store the last seen flag byte
-                            flagByte.put(target, flag);
-
-                            // Clone and update it
-                            packet = new WrapperPlayServerEntityMetadata(packet.getHandle().deepClone());
-                            watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                            watcher.setObject(0, (byte) (flag));
-
-                            event.setPacket(packet.getHandle());
-                        }
-                    }
-                } else {
-                    WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                    Byte flag = watcher.getByte(0);
-
-                    if (flag != null) {
-                        // Store the last seen flag byte
-                        flagByte.put(target, flag);
-
-                        // Clone and update it
-                        packet = new WrapperPlayServerEntityMetadata(packet.getHandle().deepClone());
-                        watcher = new WrappedDataWatcher(packet.getEntityMetadata());
-                        watcher.setObject(0, (byte) (flag));
-
-                        event.setPacket(packet.getHandle());
-                    }
-                }
+                        event.setPacket(packetManipulator(packet, target).getHandle());
+                } 
+            } else {
+                    event.setPacket(packetManipulator(packet, target).getHandle());                
             }
+        }
+    }
+
+    private WrapperPlayServerEntityMetadata packetManipulator(WrapperPlayServerEntityMetadata packet, Player player) {
+        WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+        Byte flag = watcher.getByte(0);
+
+        if (flag != null) {
+            // Store the last seen flag byte
+            flagByte.put(player, flag);
+
+            // Clone and update it
+            packet = new WrapperPlayServerEntityMetadata(packet.getHandle().deepClone());
+            watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+            watcher.setObject(0, (byte) (flag));
+            
+            return packet;
+        } else {
+            return packet;
+        }
+        
+    }
+    
+    private WrapperPlayServerEntityMetadata packetManipulatorCrouched(WrapperPlayServerEntityMetadata packet, Player player) {
+        WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+        Byte flag = watcher.getByte(0);
+
+        if (flag != null) {
+            // Store the last seen flag byte
+            flagByte.put(player, flag);
+
+            // Clone and update it
+            packet = new WrapperPlayServerEntityMetadata(packet.getHandle().deepClone());
+            watcher = new WrappedDataWatcher(packet.getEntityMetadata());
+            watcher.setObject(0, (byte) (flag | ENTITY_CROUCHED));
+            
+            return packet;
+        } else {
+            return packet;
         }
     }
 }

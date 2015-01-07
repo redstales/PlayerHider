@@ -21,6 +21,7 @@ package io.github.redinzane.playerhider;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -28,9 +29,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.trc202.CombatTag.CombatTag;
+import com.trc202.CombatTagApi.CombatTagApi;
 
 public final class PlayerHider extends JavaPlugin {
 
+    
+    private static PlayerHider instance;
     // Configuration
     private PlayerHiderConfiguration config;
     // Minecraft packet handling
@@ -41,26 +46,32 @@ public final class PlayerHider extends JavaPlugin {
     private int taskID = -1;
     // Metrics
     private Metrics metrics;
+    // Dependencies
+    private CombatTagApi combatAPI = null;
 
-    int updateCooldown = 500;
-    private long lastCall = 0;
+    int updateCooldown = 0;
+    private long nextCall = 0;
 
     @Override
     public void onEnable() {
+        instance = this;
         // Creates a Config
         this.saveDefaultConfig();
         config = new PlayerHiderConfiguration(getConfig());
 
         // Packet handling
         manager = ProtocolLibrary.getProtocolManager();
-        listener = new PlayerHiderListener(this);
+        listener = new PlayerHiderListener(this, config.getCombatTag(), config.getLoS());
 
         // Register listeners
         manager.addPacketListener(listener);
         getServer().getPluginManager().registerEvents(listener, this);
         listener.sneakdistance = config.getDistance();
         this.updateCooldown = config.getCooldown();
-        listener.feature_LoS = config.getLoS();
+        
+        // Handle Dependencies
+        handleDependencies();
+        
         try {
             taskID = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
                 public void run() {
@@ -82,16 +93,28 @@ public final class PlayerHider extends JavaPlugin {
         }
 
     }
-
+    
+    private void handleDependencies() {
+        combatAPI = handleCombatTag();
+    }
+    private CombatTagApi handleCombatTag() {
+        CombatTagApi combatAPI = null;
+        if(getServer().getPluginManager().getPlugin("CombatTag") != null) {
+            combatAPI = new CombatTagApi((CombatTag)getServer().getPluginManager().getPlugin("CombatTag"));
+        }
+        return combatAPI;  
+    }
+    
+    
+    
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTask(taskID);
     }
 
     public void updateAllPlayers() {
-        long time = System.currentTimeMillis();
-        if ((time - lastCall) > updateCooldown) {
-            lastCall = System.currentTimeMillis();
+        if (nextCall <= 0) {
+           nextCall = updateCooldown;
             Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
             for (Player player : tempPlayers) {
                 try {
@@ -103,5 +126,20 @@ public final class PlayerHider extends JavaPlugin {
         } else {
 
         }
+        nextCall--;
     }
+    
+    // Getters
+    public static PlayerHider getInstance() {
+        return instance;
+    }
+    
+    public CombatTagApi getCombatAPI() {
+        return combatAPI;
+    }
+
+    public PlayerHiderConfiguration getPlayerHiderConfig() {
+        return config;
+    }
+
 }

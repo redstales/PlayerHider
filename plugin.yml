@@ -4,6 +4,7 @@ version: 0.5
 description: A simple plugin that tries to hide underground bases by letting players appear sneaked to players that are further away. Also features LoS based hiding
 
 depend: [ProtocolLib]
+softdepend: [CombatTag]
 
 permissions:
   playerhider.*:
