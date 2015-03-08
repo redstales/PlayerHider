@@ -1,6 +1,6 @@
 name: PlayerHider
 main: io.github.redinzane.playerhider.PlayerHider
-version: 0.5
+version: 0.6
 description: A simple plugin that tries to hide underground bases by letting players appear sneaked to players that are further away. Also features LoS based hiding
 
 depend: [ProtocolLib]

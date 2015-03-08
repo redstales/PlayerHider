@@ -19,7 +19,6 @@
 
 package io.github.redinzane.playerhider;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
@@ -44,8 +43,6 @@ public final class PlayerHider extends JavaPlugin {
     private ProtocolManager manager;
     // ID of the runnable task
     private int taskID = -1;
-    // Metrics
-    private Metrics metrics;
     // Dependencies
     private CombatTagApi combatAPI = null;
 
@@ -85,13 +82,6 @@ public final class PlayerHider extends JavaPlugin {
             e.printStackTrace();
         }
 
-        try {
-            metrics = new Metrics(this);
-            metrics.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
     
     private void handleDependencies() {
@@ -115,7 +105,7 @@ public final class PlayerHider extends JavaPlugin {
     public void updateAllPlayers() {
         if (nextCall <= 0) {
            nextCall = updateCooldown;
-            Player[] tempPlayers = Bukkit.getServer().getOnlinePlayers();
+            Collection<? extends Player> tempPlayers = Bukkit.getServer().getOnlinePlayers();
             for (Player player : tempPlayers) {
                 try {
                     listener.updatePlayer(ProtocolLibrary.getProtocolManager(), player);
