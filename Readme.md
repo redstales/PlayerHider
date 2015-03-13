@@ -43,6 +43,6 @@ Config
 ------
 Very easy to configure, disable and reeanble the plugin for changes to take effect:
 * updatecooldown: Cooldown in ticks. Higher cooldown means better performance but slower updates. 
-* sneakdistance: Players further apart than this distance (in blocks) are shown as sneaking to each other. If LoS is active players who are within that distance from each other are checked for visibility and are shown as sneaking if they are not visible to each other. You can set this pretty high, but this will increase server load if many players are within the distance from each other. This should be a negligible on any servers maintaining the deafult tickrate but might be a concern on weaker servers.
+* sneakdistance: Players further apart than this distance (in blocks) are shown as sneaking to each other. If LoS is active players who are within that distance from each other are checked for visibility and are shown as sneaking if they are not visible to each other. You can set this pretty high, but this will increase server load if many players are within the distance from each other. This should be a negligible on any servers maintaining the default tickrate but might be a concern on weaker servers.
 * LoS: This turns Line of Sight hiding on or off, default off, set true to turn it on. 
 * combattag: Turns CombatTag integration on or off. If on, a tagged player is not automatically hidden.
